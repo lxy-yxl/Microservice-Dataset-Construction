@@ -10,7 +10,7 @@ spec:
 templates:
   - name: serial-of-4-node
     templateType: Serial
-    deadline: 240s
+    deadline: 4h
     children:
       - name: network-chaos
         template: network-chaos
