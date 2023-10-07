@@ -13,13 +13,9 @@ templates:
     deadline: 4h
     children:
       - name: network-chaos
-        template: network-chaos
       - name: pod-chaos
-        template: pod-chaos
       - name: cpu-chaos
-        template: cpu-chaos
       - name: memory-stress
-        template: memory-chaos
 
   - name: network-chaos
     namespace: chaos-testing
