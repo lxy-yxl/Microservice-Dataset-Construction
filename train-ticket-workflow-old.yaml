@@ -1,0 +1,72 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Workflow
+metadata:
+  name: train-ticket-workflow-serial
+spec:
+  schedule:
+    cron: "0,15,30,45 * * * *"
+  workflow: 
+    entry: serial-of-4-node
+  templates:
+    - name: serial-of-4-node
+      templateType: Serial
+      deadline: 1h
+      children:
+        - name: network-chaos
+        - name: pod-chaos
+        - name: cpu-chaos
+        - name: memory-stress
+
+    - name: network-chaos
+      namespace: chaos-testing
+      templateType: NetworkChaos
+      networkChaos:
+        action: bandwidth
+        bandwidth:
+          rate: '2mbps'
+          limit: 2
+          buffer: 2
+        mode: one
+        duration: '600s'
+        selector:
+          namespaces:
+            - train-ticket
+
+    - name: pod-chaos
+      namespace: chaos-testing
+      templateType: PodChaos
+      podChaos:
+        action: pod-kill
+        mode: one
+        duration: '600s'
+        selector:
+          namespaces:
+            - train-ticket
+
+    - name: cpu-chaos
+      namespace: chaos-testing
+      templateType: StressChaos
+      cpuChaos:
+        mode: one
+        duration: '600s'
+        stressors:
+          cpu:
+            workers: 3
+            load: 70
+        selector:
+          namespaces:
+            - train-ticket
+
+    - name: memory-chaos
+      namespace: chaos-testing
+      templateType: StressChaos
+      memoryChaos:
+        mode: one
+        duration: '600s'
+        stressors:
+          memory:
+            workers: 3
+            size: '512MB'
+        selector:
+          namespaces:
+            - train-ticket

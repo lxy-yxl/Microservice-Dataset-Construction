@@ -1,0 +1,16 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: network-chaos
+  namespace: chaos-testing
+spec:
+  action: bandwidth
+  bandwidth:
+    rate: '2mbps'
+    limit: 2
+    buffer: 2
+  mode: one
+  duration: '600s'
+  selector:
+    namespaces:
+      - train-ticket

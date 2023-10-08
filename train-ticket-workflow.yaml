@@ -1,72 +1,70 @@
 apiVersion: chaos-mesh.org/v1alpha1
 kind: Workflow
 metadata:
-  name: train-ticket-workflow-serial
+  name: tt-chaos
+  namespace: train-ticket
 spec:
+  entry: entry
   schedule:
     cron: "0,15,30,45 * * * *"
-  workflow: 
-    entry: serial-of-4-node
   templates:
-    - name: serial-of-4-node
+    - name: entry
       templateType: Serial
-      deadline: 1h
+      deadline: 4h
       children:
-        - name: network-chaos
-        - name: pod-chaos
-        - name: cpu-chaos
-        - name: memory-stress
-
+        - tt-chaos
     - name: network-chaos
-      namespace: chaos-testing
       templateType: NetworkChaos
+      deadline: 600s
       networkChaos:
+        selector:
+          namespaces:
+            - train-ticket
+        mode: one
         action: bandwidth
         bandwidth:
-          rate: '2mbps'
+          rate: 2mbps
           limit: 2
           buffer: 2
-        mode: one
-        duration: '600s'
-        selector:
-          namespaces:
-            - train-ticket
-
+        direction: to
     - name: pod-chaos
-      namespace: chaos-testing
       templateType: PodChaos
+      deadline: 600s
       podChaos:
-        action: pod-kill
-        mode: one
-        duration: '600s'
         selector:
           namespaces:
             - train-ticket
-
-    - name: cpu-chaos
-      namespace: chaos-testing
-      templateType: StressChaos
-      cpuChaos:
         mode: one
-        duration: '600s'
+        action: pod-kill
+    - name: cpu-chaos
+      templateType: StressChaos
+      deadline: 600s
+      stressChaos:
+        selector:
+          namespaces:
+            - train-ticket
+        mode: one
         stressors:
           cpu:
             workers: 3
             load: 70
+    - name: memory-stress
+      templateType: StressChaos
+      deadline: 600s
+      stressChaos:
         selector:
           namespaces:
             - train-ticket
-
-    - name: memory-chaos
-      namespace: chaos-testing
-      templateType: StressChaos
-      memoryChaos:
         mode: one
-        duration: '600s'
         stressors:
           memory:
             workers: 3
-            size: '512MB'
-        selector:
-          namespaces:
-            - train-ticket
+            size: 512MB
+    - name: tt-chaos
+      templateType: Serial
+      deadline: 4h
+      children:
+        - network-chaos
+        - pod-chaos
+        - cpu-chaos
+        - memory-stress
