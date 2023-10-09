@@ -3,8 +3,6 @@ kind: Workflow
 metadata:
   name: train-ticket-workflow-serial
 spec:
-  schedule:
-    cron: "0,15,30,45 * * * *"
   workflow: 
     entry: serial-of-4-node
   templates:
