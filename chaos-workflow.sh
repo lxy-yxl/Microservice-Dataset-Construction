@@ -10,19 +10,19 @@ sleep 15m
 kubectl apply -f ../train-ticket/chaosmesh/chaos1.yaml
 
 sleep 5m
-
+kubectl delete -f ../train-ticket/chaosmesh/chaos1.yaml
 kubectl apply -f ../train-ticket/chaosmesh/chaos2.yaml
 
 sleep 5m
-
+kubectl delete -f ../train-ticket/chaosmesh/chaos2.yaml
 kubectl apply -f ../train-ticket/chaosmesh/chaos3.yaml
 
 sleep 5m
-
+kubectl delete -f ../train-ticket/chaosmesh/chaos3.yaml
 kubectl apply -f ../train-ticket/chaosmesh/chaos4.yaml
 
 sleep 30m
-
+kubectl delete -f ../train-ticket/chaosmesh/chaos4.yaml
 # Step 5: make reset-deploy
 make reset-deploy Namespace=train-ticket
 
